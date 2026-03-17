@@ -66,6 +66,63 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _showEditDialog(BuildContext context, int index) {
+    final editController = TextEditingController(text: _tasks[index].title);
+    final editFormKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Task'),
+          content: Form(
+            key: editFormKey,
+            child: TextFormField(
+              controller: editController,
+              decoration: const InputDecoration(labelText: 'Task Content'),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Please enter a task.';
+                }
+                if (value.trim().length < 3) {
+                  return 'Task must be at least 3 characters long.';
+                }
+                return null;
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                editController.dispose();
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (editFormKey.currentState!.validate()) {
+                  setState(() {
+                    _tasks[index].title = editController.text.trim();
+                  });
+                  editController.dispose();
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteTask(int index) {
+    setState(() {
+      _tasks.removeAt(index);
+    });
+  }
+
   @override
   void dispose() {
     _controller.dispose();
@@ -105,11 +162,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.edit),
-                    onPressed: () {},
+                    onPressed: () => _showEditDialog(context, index),
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () {},
+                    onPressed: () => _deleteTask(index),
                   ),
                 ],
               ),
