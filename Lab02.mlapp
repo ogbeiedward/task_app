@@ -1,0 +1,83 @@
+properties (Access = private)
+    imgRGB
+    imgGray
+end
+
+methods (Access = private)
+
+    function startupFcn(app)
+        % Lab 02 - Classical Image Processing Methods
+        % Edward Ogbei
+
+        axList = [app.UIAxes app.UIAxes2 app.UIAxes3 app.UIAxes4 app.UIAxes5];
+        for i = 1:numel(axList)
+            axList(i).XTick = [];
+            axList(i).YTick = [];
+            title(axList(i), '');
+            xlabel(axList(i), '');
+            ylabel(axList(i), '');
+            box(axList(i), 'on');
+        end
+    end
+
+    function CloseButtonPushed(app, event)
+        close(app.UIFigure);
+    end
+
+    function OpenButtonPushed(app, event)
+        [file, path] = uigetfile({'*.jpg;*.png;*.bmp','Image Files'}, 'Load the image');
+        if isequal(file, 0)
+            return;
+        end
+        app.imgRGB = imread(fullfile(path, file));
+        imshow(app.imgRGB, 'Parent', app.UIAxes);
+    end
+
+    function GrayButtonPushed(app, event)
+        if isempty(app.imgRGB)
+            return;
+        end
+        app.imgGray = rgb2gray(app.imgRGB);
+        imshow(app.imgGray, 'Parent', app.UIAxes2);
+    end
+
+    function RGBButtonPushed(app, event)
+        if isempty(app.imgRGB)
+            return;
+        end
+        imshow(app.imgRGB(:,:,1), 'Parent', app.UIAxes3);
+        imshow(app.imgRGB(:,:,2), 'Parent', app.UIAxes4);
+        imshow(app.imgRGB(:,:,3), 'Parent', app.UIAxes5);
+    end
+
+    function RGB0ButtonPushed(app, event)
+        if isempty(app.imgRGB)
+            return;
+        end
+        r = app.imgRGB; r(:,:,2) = 0; r(:,:,3) = 0;
+        g = app.imgRGB; g(:,:,1) = 0; g(:,:,3) = 0;
+        b = app.imgRGB; b(:,:,1) = 0; b(:,:,2) = 0;
+        imshow(r, 'Parent', app.UIAxes3);
+        imshow(g, 'Parent', app.UIAxes4);
+        imshow(b, 'Parent', app.UIAxes5);
+    end
+
+    function BrighterButtonPushed(app, event)
+        if isempty(app.imgGray)
+            return;
+        end
+        k = 40;
+        out = uint8(min(int16(app.imgGray) + k, 255));
+        imshow(out, 'Parent', app.UIAxes3);
+    end
+
+    function DarkerButtonPushed(app, event)
+        if isempty(app.imgGray)
+            return;
+        end
+        k = 40;
+        out = uint8(max(int16(app.imgGray) - k, 0));
+        imshow(out, 'Parent', app.UIAxes4);
+    end
+
+end
